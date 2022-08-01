@@ -1,5 +1,5 @@
-#ifndef SECURECHAT_H
-#define SECURECHAT_H
+#ifndef BASICCHAT_H
+#define BASICCHAT_H
 
 /* FUNCTIONS */
 DWORD WINAPI chatServer(LPVOID lpParam);

@@ -1,16 +1,34 @@
 #undef UNICODE
 
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <stdio.h>
 #include <stdlib.h>
+#include <winsock2.h>
+#include <ws2tcpip.h>
 #include <windows.h>
 
 #include "basicChat.h"
+
+#pragma comment(lib, "Ws2_32.lib")
 
 int main()
 {
     DWORD serverThreadParam, clientThreadParam;
     DWORD dwThreadIdArray[2];
     HANDLE hThreadArray[2];
+
+    WSADATA wsaData;
+    int iResult;
+
+    /* Initialize Winsock */
+    if ((iResult = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0)
+    {
+        printf("WSAStartup failed, error: %d\n", iResult);
+        return -1;
+    }
 
     /* Thread creation */
     serverThreadParam = 1;
