@@ -1,27 +1,41 @@
 #undef UNICODE
 
-#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
-#endif
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <windows.h>
 #include <winsock2.h>
 #include <ws2tcpip.h>
-#include <windows.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 #include "basicChat.h"
 
 #pragma comment(lib, "Ws2_32.lib")
 
+#define PORT "26000"
+
 int main()
 {
-    DWORD serverThreadParam, clientThreadParam;
     DWORD dwThreadIdArray[2];
     HANDLE hThreadArray[2];
 
     WSADATA wsaData;
     int iResult;
+
+    char id[11];
+    int idLen;
+
+    /* Get id */
+    printf("Please enter your id (10 characters maximum):\n");
+    scanf("%s", &id);
+    idLen = strlen(id);
+    while (idLen > 10)
+    {
+        printf("Exceded maximum id size, please enter your id again\n");
+        scanf("%s", &id);
+        idLen = strlen(id);
+    }
+    printf("Your id is: %s\n", id);
 
     /* Initialize Winsock */
     if ((iResult = WSAStartup(MAKEWORD(2, 2), &wsaData)) != 0)
@@ -31,15 +45,13 @@ int main()
     }
 
     /* Thread creation */
-    serverThreadParam = 1;
-    if ((hThreadArray[0] = CreateThread(NULL, 0, chatServer, &serverThreadParam, 0, &dwThreadIdArray[0])) == NULL)
+    if ((hThreadArray[0] = CreateThread(NULL, 0, chatServer, &id, 0, &dwThreadIdArray[0])) == NULL)
     {
         printf("server CreateThread() failed, error: %d\n", GetLastError());
         return -1;
     }
 
-    clientThreadParam = 2;
-    if ((hThreadArray[1] = CreateThread(NULL, 0, chatClient, &clientThreadParam, 0, &dwThreadIdArray[1])) == NULL)
+    if ((hThreadArray[1] = CreateThread(NULL, 0, chatClient, &id, 0, &dwThreadIdArray[1])) == NULL)
     {
         printf("client CreateThread() failed, error: %d\n", GetLastError());
         return -1;
@@ -65,14 +77,16 @@ int main()
 
 DWORD WINAPI chatServer(LPVOID lpParam)
 {
-    int param = *(int *)lpParam;
-    printf("Server Thread, param: %d\n", param);
+    char* param = lpParam;
+    printf("Server Thread, param: %s\n", param);
+
     return 0;
 }
 
 DWORD WINAPI chatClient(LPVOID lpParam)
 {
-    int param = *(int *)lpParam;
-    fprintf(stdout, "Client Thread, param: %d\n", param);
+    char* param = lpParam;
+    fprintf(stdout, "Client Thread, param: %s\n", param);
+
     return 0;
 }
